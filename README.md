@@ -44,19 +44,13 @@ Your AI script communicates with the server over WebSockets.
 #### Sending Your Prediction
 
 After receiving the game state, your AI must decide where to move its paddle. You must then send a JSON message back to the server in the following format.
-
-
-
-```json
-{
-  "type": "ai_prediction",
-  "requestId": "pred_req_1679876543210_0.12345",
-  "model": "ai1",
-  "targetX" : 30,
-  "targetY": 375,
-
-}
+```bash
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/predict" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"model":"ai1","targetY":350,"immediate":false}'
 ```
+
 
 ### How to Run the Example:
 1.  Run the html file `main.html`.
@@ -65,12 +59,7 @@ After receiving the game state, your AI must decide where to move its paddle. Yo
 
 ### Send the information by hitting the API using follwing demo commands
 
-```bash
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/predict" `
-  -Method Post `
-  -ContentType "application/json" `
-  -Body '{"model":"ai1","targetY":350,"immediate":false}'
-```
+
 Make sure, that you change ai1 and a12 before sending accordingly. 
 
 ### Get the information about the score
