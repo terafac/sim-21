@@ -1,438 +1,546 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI vs AI Pong Environment</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #425be9 0%, #000000 100%);
-            font-family: 'Arial', sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; overflow: hidden;
-            padding: 20px;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: linear-gradient(135deg, #425be9 0%, #000000 100%);
+        font-family: "Arial", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow: hidden;
+        padding: 20px;
+      }
 
-        .header {
-            color: white; text-align: center; margin-bottom: 20px;
-        }
+      .header {
+        color: white;
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-        .header h1 {
-            font-size: 32px; font-weight: bold; margin-bottom: 10px;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
-        }
+      .header h1 {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+      }
 
-        .header p {
-            font-size: 16px; opacity: 0.9;
-        }
+      .header p {
+        font-size: 16px;
+        opacity: 0.9;
+      }
 
-        .game-wrapper {
-            display: flex; gap: 30px; align-items: flex-start;
-        }
+      .game-wrapper {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+      }
 
-        .left-panel, .right-panel {
-            width: 280px; display: flex; flex-direction: column; gap: 20px;
-        }
+      .left-panel,
+      .right-panel {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-        .game-container {
-            position: relative;
-            border: 4px solid #fff;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(15px);
-        }
+      .game-container {
+        position: relative;
+        border: 4px solid #fff;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(15px);
+      }
 
-        canvas { 
-            display: block; 
-            border-radius: 16px; 
-        }
+      canvas {
+        display: block;
+        border-radius: 16px;
+      }
 
-        .info-panel {
-            background: rgba(0,0,0,0.8); 
-            padding: 20px; 
-            border-radius: 15px;
-            color: white;
-            backdrop-filter: blur(10px);
-        }
+      .info-panel {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 15px;
+        color: white;
+        backdrop-filter: blur(10px);
+      }
 
-        .panel-title {
-            color: #00ff88; 
-            font-size: 18px; 
-            font-weight: bold; 
-            margin-bottom: 15px;
-            text-align: center;
-        }
+      .panel-title {
+        color: #00ff88;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+      }
 
-        .score-section {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+      .score-section {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
 
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
+      .score-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+      }
 
-        .ai-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 16px;
-        }
+      .ai-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+      }
 
-        .score-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #00ff88;
-        }
+      .score-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #00ff88;
+      }
 
-        .coordinates {
-            color: #00ff88; 
-            font-family: 'Courier New', monospace; 
-            font-size: 14px;
-        }
+      .coordinates {
+        color: #00ff88;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+      }
 
-        .coord-section { 
-            margin-bottom: 20px;
-        }
+      .coord-section {
+        margin-bottom: 20px;
+      }
 
-        .coord-label { 
-            color: #fff; 
-            font-weight: bold; 
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
+      .coord-label {
+        color: #fff;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
 
-        .coord-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            padding: 5px 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 5px;
-        }
+      .coord-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
 
-        .control-panel {
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 15px;
-            color: white;
-        }
+      .control-panel {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 15px;
+        color: white;
+      }
 
-        .control-section {
-            margin-bottom: 20px;
-        }
+      .control-section {
+        margin-bottom: 20px;
+      }
 
-        .control-section:last-child {
-            margin-bottom: 0;
-        }
+      .control-section:last-child {
+        margin-bottom: 0;
+      }
 
-        .section-title {
-            color: #ffaa00;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+      .section-title {
+        color: #ffaa00;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
 
-        .control-button {
-            background: #333; 
-            border: 1px solid #555; 
-            color: white; 
-            padding: 12px 20px;
-            border-radius: 8px; 
-            margin: 5px 0; 
-            cursor: pointer; 
-            font-size: 14px;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
+      .control-button {
+        background: #333;
+        border: 1px solid #555;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 5px 0;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
 
-        .control-button:hover { 
-            background: #555; 
-            transform: translateY(-2px);
-        }
+      .control-button:hover {
+        background: #555;
+        transform: translateY(-2px);
+      }
 
-        .control-button.active { 
-            background: #00aa00; 
-        }
+      .control-button.active {
+        background: #00aa00;
+      }
 
-        .start-button {
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
+      .start-button {
+        background: linear-gradient(45deg, #00ff88, #00cc6a);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.3s ease;
+      }
 
-        .start-button:hover {
-            transform: scale(1.05);
-        }
+      .start-button:hover {
+        transform: scale(1.05);
+      }
 
-        .start-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
+      .start-button:disabled {
+        background: #666;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-        .status-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
+      .status-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
 
-        .status-label {
-            color: #ccc;
-        }
+      .status-label {
+        color: #ccc;
+      }
 
-        .status-value {
-            font-weight: bold;
-        }
+      .status-value {
+        font-weight: bold;
+      }
 
-        .game-over {
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%,-50%);
-            background: rgba(0,0,0,0.95); 
-            color: white; 
-            padding: 40px; 
-            border-radius: 20px; 
-            text-align: center;
-            display: none;
-            z-index: 1000;
-        }
+      .hit-indicator {
+        color: #ff0000;
+        font-weight: bold;
+        animation: blink 0.5s infinite;
+      }
 
-        .restart-btn {
-            background: linear-gradient(45deg,#00ff88,#00cc6a); 
-            border: none; 
-            padding: 15px 30px; 
-            border-radius: 30px;
-            color: white; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 20px; 
-            transition: transform .2s;
+      @keyframes blink {
+        50% {
+          opacity: 0.5;
         }
+      }
 
-        .restart-btn:hover { 
-            transform: scale(1.05); 
-        }
+      .game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.95);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        display: none;
+        z-index: 1000;
+      }
 
-        .waiting-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            z-index: 100;
-        }
+      .restart-btn {
+        background: linear-gradient(45deg, #00ff88, #00cc6a);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 30px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.2s;
+      }
 
-        .waiting-message .pulse {
-            animation: pulse 2s infinite;
-        }
+      .restart-btn:hover {
+        transform: scale(1.05);
+      }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
+      .waiting-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        z-index: 100;
+      }
+
+      .waiting-message .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.5;
         }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.5;
+        }
+      }
+
+      .hit-log {
+        max-height: 200px;
+        overflow-y: auto;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+
+      .hit-entry {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid #00ff88;
+      }
+
+      .hit-entry.ai1-hit {
+        border-left-color: #00ff88;
+      }
+
+      .hit-entry.ai2-hit {
+        border-left-color: #ff4488;
+      }
+
+      /* small debug badge */
+      .debug-badge {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        z-index: 2000;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <h1>AI vs AI Pong Environment</h1>
-        <p>Real-time ML Model Competition • First to 15 points wins!</p>
+      <h1>AI vs AI Pong Environment</h1>
+      <p>
+        Ball Hit Detection System • Real-time Coordinate Emission • First to 15
+        points wins!
+      </p>
     </div>
 
     <div class="game-wrapper">
-        <!-- Left Panel -->
-        <div class="left-panel">
-            <!-- Score Panel -->
-            <div class="info-panel">
-                <div class="panel-title">🏆 SCOREBOARD</div>
-                <div class="score-item">
-                    <div class="ai-label">
-                        <span>🤖</span>
-                        <span>Neural Net A</span>
-                    </div>
-                    <div class="score-value" id="ai1Score">0</div>
-                </div>
-                <div class="score-item">
-                    <div class="ai-label">
-                        <span>🤖</span>
-                        <span>Neural Net B</span>
-                    </div>
-                    <div class="score-value" id="ai2Score">0</div>
-                </div>
+      <!-- Left Panel -->
+      <div class="left-panel">
+        <!-- Score Panel -->
+        <div class="info-panel">
+          <div class="panel-title">🏆 SCOREBOARD</div>
+          <div class="score-item">
+            <div class="ai-label">
+              <span>🤖</span>
+              <span>Neural Net A</span>
             </div>
-
-            <!-- Ball State -->
-            <div class="info-panel">
-                <div class="panel-title">🏓 BALL STATE</div>
-                <div class="coordinates">
-                    <div class="coord-item">
-                        <span>Position X:</span>
-                        <span id="ballX">700</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Position Y:</span>
-                        <span id="ballY">350</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Velocity X:</span>
-                        <span id="ballVX">6</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Velocity Y:</span>
-                        <span id="ballVY">4</span>
-                    </div>
-                </div>
+            <div class="score-value" id="ai1Score">0</div>
+          </div>
+          <div class="score-item">
+            <div class="ai-label">
+              <span>🤖</span>
+              <span>Neural Net B</span>
             </div>
-
-            <!-- Game Controls -->
-            <div class="control-panel">
-                <div class="panel-title">🎮 GAME CONTROLS</div>
-                
-                <div class="control-section">
-                    <button class="start-button" id="startButton" onclick="startMatch()">
-                        PRESS ENTER TO START
-                    </button>
-                </div>
-
-                <div class="control-section">
-                    <div class="section-title">Game Actions:</div>
-                    <button class="control-button" onclick="pauseGame()">Pause/Resume</button>
-                    <button class="control-button" onclick="increaseSpeed()">Increase Speed</button>
-                    <button class="control-button" onclick="resetEverything()">Reset Everything</button>
-                </div>
-            </div>
+            <div class="score-value" id="ai2Score">0</div>
+          </div>
         </div>
 
-        <!-- Game Canvas -->
-        <div class="game-container">
-            <canvas id="gameCanvas" width="1400" height="700"></canvas>
-
-            <div class="waiting-message" id="waitingMessage">
-                <div class="pulse">Press ENTER to start the match!</div>
+        <!-- Ball State -->
+        <div class="info-panel">
+          <div class="panel-title">🏓 BALL STATE</div>
+          <div class="coordinates">
+            <div class="coord-item">
+              <span>Position X:</span>
+              <span id="ballX">700</span>
             </div>
-
-            <div class="game-over" id="gameOver">
-                <h2 id="gameResult">Match Complete!</h2>
-                <p>Final Score: <span id="finalScore"></span></p>
-                <button class="restart-btn" onclick="nextMatch()">Next Match</button>
+            <div class="coord-item">
+              <span>Position Y:</span>
+              <span id="ballY">350</span>
             </div>
+            <div class="coord-item">
+              <span>Velocity X:</span>
+              <span id="ballVX">6</span>
+            </div>
+            <div class="coord-item">
+              <span>Velocity Y:</span>
+              <span id="ballVY">4</span>
+            </div>
+            <div class="coord-item">
+              <span>Last Hit:</span>
+              <span id="ballLastHit">-</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Right Panel -->
-        <div class="right-panel">
-            <!-- AI Model 1 Info -->
-            <div class="info-panel">
-                <div class="panel-title">🤖 AI MODEL 1</div>
-                <div class="coordinates">
-                    <div class="coord-item">
-                        <span>Position X:</span>
-                        <span id="ai1X">30</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Position Y:</span>
-                        <span id="ai1Y">275</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Target Y:</span>
-                        <span id="ai1Target">350</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Game Controls -->
+        <div class="control-panel">
+          <div class="panel-title">🎮 GAME CONTROLS</div>
 
-            <!-- AI Model 2 Info -->
-            <div class="info-panel">
-                <div class="panel-title">🤖 AI MODEL 2</div>
-                <div class="coordinates">
-                    <div class="coord-item">
-                        <span>Position X:</span>
-                        <span id="ai2X">1350</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Position Y:</span>
-                        <span id="ai2Y">275</span>
-                    </div>
-                    <div class="coord-item">
-                        <span>Target Y:</span>
-                        <span id="ai2Target">350</span>
-                    </div>
-                </div>
-            </div>
+          <div class="control-section">
+            <button
+              class="start-button"
+              id="startButton"
+              onclick="startMatch()"
+            >
+              PRESS ENTER TO START
+            </button>
+          </div>
 
-            <!-- Game Status -->
-            <div class="info-panel">
-                <div class="panel-title">📊 GAME STATUS</div>
-                
-                <div class="status-info">
-                    <span class="status-label">Match:</span>
-                    <span class="status-value" id="matchCount">1</span>
-                </div>
-                
-                <div class="status-info">
-                    <span class="status-label">Speed Level:</span>
-                    <span class="status-value" id="speedLevel">1x</span>
-                </div>
-                
-                <div class="status-info">
-                    <span class="status-label">WebSocket:</span>
-                    <span class="status-value" id="netStatus">disconnected</span>
-                </div>
-
-                <div class="status-info">
-                    <span class="status-label">Data Stream:</span>
-                    <span class="status-value" id="emissionStatus">Stopped</span>
-                </div>
-
-                <div class="control-section" style="margin-top: 15px;">
-                    <div class="section-title">AI Control Mode:</div>
-                    <button class="control-button active" id="autoMode" onclick="setAIMode('auto')">Auto AI</button>
-                    <button class="control-button" id="remoteMode" onclick="setAIMode('remote')">Remote AI</button>
-                </div>
-            </div>
+          <div class="control-section">
+            <div class="section-title">Game Actions:</div>
+            <button class="control-button" onclick="pauseGame()">
+              Pause/Resume
+            </button>
+            <button class="control-button" onclick="increaseSpeed()">
+              Increase Speed
+            </button>
+            <button class="control-button" onclick="resetEverything()">
+              Reset Everything
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Game Canvas -->
+      <div class="game-container">
+        <canvas id="gameCanvas" width="1400" height="700"></canvas>
+
+        <div class="waiting-message" id="waitingMessage">
+          <div class="pulse">Press ENTER to start the match!</div>
+        </div>
+
+        <div class="game-over" id="gameOver">
+          <h2 id="gameResult">Match Complete!</h2>
+          <p>Final Score: <span id="finalScore"></span></p>
+          <button class="restart-btn" onclick="nextMatch()">Next Match</button>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <!-- Hit Detection Status -->
+        <div class="info-panel">
+          <div class="panel-title">🎯 HIT DETECTION</div>
+          <div class="status-info">
+            <span class="status-label">Total Hits:</span>
+            <span class="status-value" id="hitCount">0</span>
+          </div>
+          <div class="status-info">
+            <span class="status-label">Last Hit By:</span>
+            <span class="status-value" id="lastHitBy">None</span>
+          </div>
+          <div class="status-info">
+            <span class="status-label">Data Emitted:</span>
+            <span class="status-value" id="dataEmitted">0 KB</span>
+          </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="info-panel">
+          <div class="panel-title">📊 GAME STATUS</div>
+
+          <div class="status-info">
+            <span class="status-label">Match:</span>
+            <span class="status-value" id="matchCount">1</span>
+          </div>
+
+          <div class="status-info">
+            <span class="status-label">Speed Level:</span>
+            <span class="status-value" id="speedLevel">1x</span>
+          </div>
+
+          <div class="status-info">
+            <span class="status-label">WebSocket:</span>
+            <span class="status-value" id="netStatus">disconnected</span>
+          </div>
+
+          <div class="status-info">
+            <span class="status-label">API Status:</span>
+            <span class="status-value" id="apiStatus">Ready</span>
+          </div>
+
+          <div class="status-info">
+            <span class="status-label">Hit Detection:</span>
+            <span class="status-value hit-indicator" id="hitDetectionStatus"
+              >ACTIVE</span
+            >
+          </div>
+
+          <div class="control-section" style="margin-top: 15px">
+            <div class="section-title">AI Control Mode:</div>
+            <button
+              class="control-button active"
+              id="autoMode"
+              onclick="setAIMode('auto')"
+            >
+              Auto AI
+            </button>
+            <button
+              class="control-button"
+              id="remoteMode"
+              onclick="setAIMode('remote')"
+            >
+              Remote AI
+            </button>
+          </div>
+        </div>
+
+        <!-- Hit Log -->
+        <div class="info-panel">
+          <div class="panel-title">📋 HIT LOG</div>
+          <div class="hit-log" id="hitLog">
+            <div style="text-align: center; color: #888; padding: 20px">
+              No hits detected yet...
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <div class="debug-badge">WS: <span id="dbgNet">disconnected</span></div>
+
     <script>
-    // ----- Canvas and context -----
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+      // ----- Canvas and context -----
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
 
-    // ----- Game state -----
-    let gameRunning = false;
-    let gamePaused = false;
-    let gameStarted = false;
-    let gameStartTime = Date.now();
-    let matchCount = 1;
-    let aiMode = 'auto'; // 'auto' or 'remote'
+      // ----- Game state -----
+      let gameRunning = false;
+      let gamePaused = false;
+      let gameStarted = false;
+      let gameStartTime = Date.now();
+      let matchCount = 1;
+      let aiMode = "auto"; // 'auto' or 'remote'
 
-    // Ball (larger playground)
-    const ball = {
+      // ----- Hit detection system -----
+      let hitCount = 0;
+      let lastHitTime = 0;
+      let dataEmittedBytes = 0;
+
+      // Ball (larger playground)
+      const ball = {
         x: canvas.width / 2,
         y: canvas.height / 2,
         radius: 12,
@@ -440,484 +548,787 @@
         velocityY: 4,
         baseSpeed: 6,
         currentSpeed: 6,
-        lastHit: null
-    };
+        lastHit: null,
+      };
 
-    // AI Model 1 paddle (left side)
-    const ai1Paddle = {
+      // AI Model 1 paddle (left side)
+      const ai1Paddle = {
         x: 30,
         y: canvas.height / 2 - 75,
         width: 20,
         height: 150,
         speed: 10,
         targetY: canvas.height / 2,
-        responseTime: 0
-    };
+        responseTime: 0,
+      };
 
-    // AI Model 2 paddle (right side)  
-    const ai2Paddle = {
+      // AI Model 2 paddle (right side)
+      const ai2Paddle = {
         x: canvas.width - 50,
         y: canvas.height / 2 - 75,
         width: 20,
         height: 150,
         speed: 10,
         targetY: canvas.height / 2,
-        responseTime: 0
-    };
+        responseTime: 0,
+      };
 
-    let ai1Score = 0;
-    let ai2Score = 0;
-    let currentSpeedLevel = 1;
+      let ai1Score = 0;
+      let ai2Score = 0;
+      let currentSpeedLevel = 1;
 
-    // ----- WebSocket realtime communication -----
-    const WS_URL = "ws://localhost:8765";
-    let ws = null;
-    let wsConnected = false;
-    let wsReconnectDelay = 2000;
-    const netStatusEl = document.getElementById('netStatus');
-    let pendingAIRequests = new Map();
-    let emissionCounter = 0;
-    let lastEmissionTime = 0;
-    const EMISSION_INTERVAL = 16; // Emit every 16ms (~60 FPS)
+      // ----- WebSocket and API Configuration -----
+      const WS_URL = "ws://localhost:8765";
+      let ws = null;
+      let wsConnected = false;
+      let wsReconnectDelay = 2000;
+      const netStatusEl = document.getElementById("netStatus");
+      const dbgNetEl = document.getElementById("dbgNet");
+      let pendingAIRequests = new Map();
 
-    function setNetStatus(text, color = null) {
+      // API Configuration for hit data emission
+      const API_CONFIG = {
+        endpoint: "http://localhost:3000/api/ball-hit",
+        enabled: true,
+        timeout: 5000,
+      };
+
+      function setNetStatus(text, color = null) {
         netStatusEl.textContent = text;
-        if (color) netStatusEl.style.color = color;
-        else netStatusEl.style.color = '';
-    }
+        dbgNetEl.textContent = text;
+        if (color) {
+          netStatusEl.style.color = color;
+          dbgNetEl.style.color = color;
+        } else {
+          netStatusEl.style.color = "";
+          dbgNetEl.style.color = "";
+        }
+      }
 
-    function connectWS() {
+      function connectWS() {
         try {
-            ws = new WebSocket(WS_URL);
+          ws = new WebSocket(WS_URL);
         } catch (err) {
-            console.warn("WS connection attempt failed:", err);
-            scheduleReconnect();
-            return;
+          console.warn("WS connection attempt failed:", err);
+          scheduleReconnect();
+          return;
         }
 
-        ws.addEventListener('open', () => {
-            console.log("WebSocket connected to", WS_URL);
-            wsConnected = true;
-            setNetStatus('connected', '#80ff80');
+        ws.addEventListener("open", () => {
+          console.log("WebSocket connected to", WS_URL);
+          wsConnected = true;
+          setNetStatus("connected", "#80ff80");
         });
 
-        ws.addEventListener('message', (ev) => {
-            try {
-                const response = JSON.parse(ev.data);
-                handleAIResponse(response);
-            } catch (e) {
-                console.warn("Invalid JSON from server:", ev.data);
+        // ---------- MESSAGE HANDLER: AI responses + paddle updates + score updates ----------
+        ws.addEventListener("message", (ev) => {
+          // debug logging for incoming messages (helps confirm broadcast)
+          try {
+            console.debug("[WS RAW]", ev.data);
+          } catch (err) {}
+
+          try {
+            const msg = JSON.parse(ev.data);
+            console.info("[WS MSG]", msg);
+
+            // existing AI response handling
+            handleAIResponse(msg);
+
+            // handle paddle updates broadcast by server
+            if (msg.type === "paddle_update") {
+              // treat msg.y as paddle center; clamp within canvas
+              const centerY = Math.max(0, Math.min(canvas.height, Number(msg.y) || 0));
+
+              // switch to remote mode so auto AI won't override external control
+              setAIMode("remote");
+
+              if (msg.paddle === "ai1") {
+                // set top-left y (so paddle visually moves to center requested)
+                ai1Paddle.y = Math.max(0, Math.min(canvas.height - ai1Paddle.height, centerY - ai1Paddle.height / 2));
+                ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, centerY));
+              } else if (msg.paddle === "ai2") {
+                ai2Paddle.y = Math.max(0, Math.min(canvas.height - ai2Paddle.height, centerY - ai2Paddle.height / 2));
+                ai2Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, centerY));
+              }
+
+              // update visuals immediately
+              updateUI();
+              draw();
             }
+
+            // handle authoritative score updates from server
+            if (msg.type === "score_update" && msg.scores) {
+              const s = msg.scores;
+              if (typeof s.ai1 === "number") ai1Score = s.ai1;
+              if (typeof s.ai2 === "number") ai2Score = s.ai2;
+              updateUI();
+              console.log("[WS] score_update applied:", s);
+            }
+
+            // optional: handle server acks or other message types
+          } catch (e) {
+            console.warn("Invalid JSON from server:", ev.data);
+          }
         });
 
-        ws.addEventListener('close', () => {
-            console.log("WebSocket closed — reconnecting...");
-            wsConnected = false;
-            setNetStatus('disconnected', '#ff8080');
-            scheduleReconnect();
+        ws.addEventListener("close", () => {
+          console.log("WebSocket closed — reconnecting...");
+          wsConnected = false;
+          setNetStatus("disconnected", "#ff8080");
+          scheduleReconnect();
         });
 
-        ws.addEventListener('error', (err) => {
-            console.warn("WebSocket error", err);
-            try { ws.close(); } catch (e) {}
+        ws.addEventListener("error", (err) => {
+          console.warn("WebSocket error", err);
+          try {
+            ws.close();
+          } catch (e) {}
         });
-    }
+      }
 
-    let reconnectTimer = null;
-    function scheduleReconnect() {
+      let reconnectTimer = null;
+      function scheduleReconnect() {
         if (reconnectTimer) return;
         reconnectTimer = setTimeout(() => {
-            reconnectTimer = null;
-            connectWS();
+          reconnectTimer = null;
+          connectWS();
         }, wsReconnectDelay);
-    }
+      }
 
-    // Handle AI model responses
-    function handleAIResponse(response) {
+      // Handle AI model responses
+      function handleAIResponse(response) {
         const requestTime = pendingAIRequests.get(response.requestId);
         if (requestTime) {
-            pendingAIRequests.delete(response.requestId);
+          pendingAIRequests.delete(response.requestId);
         }
 
-        if (response.type === 'ai_prediction') {
-            if (response.model === 'ai1' && response.targetY !== undefined) {
-                ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, response.targetY));
-            }
-            if (response.model === 'ai2' && response.targetY !== undefined) {
-                ai2Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, response.targetY));
-            }
+        if (response.type === "ai_prediction") {
+          if (response.model === "ai1" && response.targetY !== undefined) {
+            ai1Paddle.targetY = Math.max(
+              75,
+              Math.min(canvas.height - 75, response.targetY)
+            );
+          }
+          if (response.model === "ai2" && response.targetY !== undefined) {
+            ai2Paddle.targetY = Math.max(
+              75,
+              Math.min(canvas.height - 75, response.targetY)
+            );
+          }
         }
-    }
+      }
 
-    // Continuously emit game state coordinates
-    function emitGameState() {
-        if (!wsConnected || !ws || ws.readyState !== WebSocket.OPEN) return;
-        if (!gameStarted) return;
+      // --------------------------
+      // Score sync helpers
+      // --------------------------
+      async function sendScoreUpdate() {
+        try {
+          const payload = { ai1: ai1Score, ai2: ai2Score };
+          const res = await fetch("http://localhost:3000/api/score", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) {
+            console.warn("score POST failed:", res.status, await res.text());
+            return;
+          }
+          const body = await res.json();
+          console.log("[SCORE] updated server:", body);
+        } catch (err) {
+          console.warn("[SCORE] failed to send score update:", err);
+        }
+      }
 
-        const currentTime = Date.now();
-        if (currentTime - lastEmissionTime < EMISSION_INTERVAL) return;
-        
-        lastEmissionTime = currentTime;
-        emissionCounter++;
+      // Poll /api/score fallback in case WS missed broadcasts
+      async function pollScoreOnce() {
+        try {
+          const r = await fetch("http://localhost:3000/api/score", { cache: "no-store" });
+          if (!r.ok) return;
+          const b = await r.json();
+          if (typeof b.ai1 === "number" && b.ai1 !== ai1Score) {
+            ai1Score = b.ai1;
+            console.log("[POLL] synced ai1Score ->", ai1Score);
+          }
+          if (typeof b.ai2 === "number" && b.ai2 !== ai2Score) {
+            ai2Score = b.ai2;
+            console.log("[POLL] synced ai2Score ->", ai2Score);
+          }
+          updateUI();
+        } catch (e) {
+          // ignore
+        }
+      }
+      setInterval(pollScoreOnce, 1000); // poll once per second as fallback
+
+      // ----- Ball Hit Detection and Emission -----
+      function emitBallHitData(hitBy) {
+        if (!gameRunning) return;
+
+        hitCount++;
+        lastHitTime = Date.now();
 
         const gameStateData = {
-            gameState: {
-                ball: {
-                    x: Math.round(ball.x * 100) / 100, // Round to 2 decimal places for precision
-                    y: Math.round(ball.y * 100) / 100,
-                    velocityX: Math.round(ball.velocityX * 100) / 100,
-                    velocityY: Math.round(ball.velocityY * 100) / 100,
-                    radius: ball.radius,
-                    speed: Math.round(ball.currentSpeed * 100) / 100
-                },
-                paddle1: {
-                    id: "ai1",
-                    name: "Neural Net A",
-                    x: ai1Paddle.x,
-                    y: Math.round((ai1Paddle.y + ai1Paddle.height / 2) * 100) / 100,
-                    width: ai1Paddle.width,
-                    height: ai1Paddle.height,
-                    speed: ai1Paddle.speed
-                },
-                paddle2: {
-                    id: "ai2", 
-                    name: "Neural Net B",
-                    x: ai2Paddle.x,
-                    y:  Math.round((ai2Paddle.y + ai2Paddle.height / 2) * 100) / 100,
-                    width: ai2Paddle.width,
-                    height: ai2Paddle.height,
-                    speed: ai2Paddle.speed
-                },
-            }
-        };
-
-        try {
-            ws.send(JSON.stringify(gameStateData));
-        } catch (e) {
-            console.warn("WS emission failed:", e);
-        }
-    }
-
-    // Request AI predictions (separate from emissions)
-    function requestAIPredictions() {
-        if (!wsConnected || !ws || ws.readyState !== WebSocket.OPEN || aiMode !== 'remote') return;
-
-        const requestId = `pred_req_${Date.now()}_${Math.random()}`;
-        pendingAIRequests.set(requestId, Date.now());
-
-        const predictionRequest = {
-            type: "ai_prediction_request",
-            requestId: requestId,
-            timestamp: Date.now(),
-            gameState: {
-                ball: {
-                    x: Math.round(ball.x),
-                    y: Math.round(ball.y),
-                    velocityX: Math.round(ball.velocityX * 10) / 10,
-                    velocityY: Math.round(ball.velocityY * 10) / 10,
-                    radius: ball.radius
-                },
-                ai1Paddle: {
-                    x: ai1Paddle.x,
-                    y: Math.round(ai1Paddle.y),
-                    width: ai1Paddle.width,
-                    height: ai1Paddle.height
-                },
-                ai2Paddle: {
-                    x: ai2Paddle.x,
-                    y: Math.round(ai2Paddle.y),
-                    width: ai2Paddle.width,
-                    height: ai2Paddle.height
-                },
-                canvasWidth: canvas.width,
-                canvasHeight: canvas.height,
-                speedLevel: currentSpeedLevel
+          gameState: {
+            ball: {
+              x: Math.round(ball.x * 100) / 100,
+              y: Math.round(ball.y * 100) / 100,
+              velocityX: Math.round(ball.velocityX * 100) / 100,
+              velocityY: Math.round(ball.velocityY * 100) / 100,
+              radius: ball.radius,
+              speed: Math.round(ball.currentSpeed * 100) / 100,
             },
-            requestedPredictions: ["ai1", "ai2"] // Request predictions for both AI models
+            paddle1: {
+              id: "ai1",
+              name: "Neural Net A",
+              x: ai1Paddle.x,
+              y: Math.round(ai1Paddle.y * 100) / 100,
+              width: ai1Paddle.width,
+              height: ai1Paddle.height,
+              speed: ai1Paddle.speed,
+            },
+            paddle2: {
+              id: "ai2",
+              name: "Neural Net B",
+              x: ai2Paddle.x,
+              y: Math.round(ai2Paddle.y * 100) / 100,
+              width: ai2Paddle.width,
+              height: ai2Paddle.height,
+              speed: ai2Paddle.speed,
+            },
+            scores: { ai1: ai1Score, ai2: ai2Score } // include current scores optionally
+          },
         };
 
+        // Emit to WebSocket if connected
+        if (wsConnected && ws && ws.readyState === WebSocket.OPEN) {
+          try {
+            ws.send(JSON.stringify(gameStateData));
+            console.log(
+              `📥 Emitted to WebSocket (Hit by ${hitBy}):`,
+              gameStateData
+            );
+          } catch (e) {
+            console.warn("WebSocket emission failed:", e);
+          }
+        }
+
+        // Emit to API
+        emitToAPI(gameStateData, hitBy);
+
+        // Update UI
+        updateHitDetectionUI(hitBy);
+
+        // Log to console in the exact format you requested
+        console.log("📥 Received JSON:");
+        console.log(JSON.stringify(gameStateData, null, 2));
+      }
+
+      async function emitToAPI(gameStateData, hitBy) {
+        if (!API_CONFIG.enabled) return;
+
+        const controller = new AbortController();
+        const timeout = API_CONFIG.timeout || 5000;
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
         try {
-            ws.send(JSON.stringify(predictionRequest));
-        } catch (e) {
-            console.warn("WS prediction request failed:", e);
+          const response = await fetch(API_CONFIG.endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Game-Session": `pong_${gameStartTime}`,
+              "X-Hit-Count": hitCount.toString(),
+              "X-Hit-By": hitBy,
+            },
+            body: JSON.stringify(gameStateData),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          const apiStatus = document.getElementById("apiStatus");
+          if (response.ok) {
+            const result = await response.json();
+            console.log(`✅ API Hit Data sent (Hit by ${hitBy}):`, result);
+            apiStatus.textContent = "Connected";
+            apiStatus.style.color = "#00ff88";
+          } else {
+            console.warn(
+              `❌ API Error: ${response.status} ${response.statusText}`
+            );
+            apiStatus.textContent = "Error";
+            apiStatus.style.color = "#ff4444";
+          }
+        } catch (err) {
+          clearTimeout(timeoutId);
+          const apiStatus = document.getElementById("apiStatus");
+          if (err.name === "AbortError") {
+            console.warn("🚫 API Request aborted due to timeout");
+            apiStatus.textContent = "Timeout";
+          } else {
+            console.warn("🚫 API Request Failed:", err.message);
+            apiStatus.textContent = "Failed";
+          }
+          apiStatus.style.color = "#ff4444";
         }
-    }
+      }
 
-    // Start WebSocket connection
-    connectWS();
+      function updateHitDetectionUI(hitBy) {
+        document.getElementById("hitCount").textContent = hitCount;
+        document.getElementById("lastHitBy").textContent =
+          hitBy === "ai1" ? "Neural Net A" : "Neural Net B";
 
-    // ----- Game logic -----
-    function updateAIPaddles() {
-        if (aiMode === 'auto') {
-            // Built-in AI logic for demonstration
-            updateAutoAI();
+        // Calculate data emitted (approximate)
+        const jsonString = JSON.stringify({
+          gameState: {
+            ball: {
+              x: ball.x,
+              y: ball.y,
+              velocityX: ball.velocityX,
+              velocityY: ball.velocityY,
+              radius: ball.radius,
+              speed: ball.currentSpeed,
+            },
+            paddle1: {
+              id: "ai1",
+              name: "Neural Net A",
+              x: ai1Paddle.x,
+              y: ai1Paddle.y,
+              width: ai1Paddle.width,
+              height: ai1Paddle.height,
+              speed: ai1Paddle.speed,
+            },
+            paddle2: {
+              id: "ai2",
+              name: "Neural Net B",
+              x: ai2Paddle.x,
+              y: ai2Paddle.y,
+              width: ai2Paddle.width,
+              height: ai2Paddle.height,
+              speed: ai2Paddle.speed,
+            },
+          },
+        });
+        dataEmittedBytes += jsonString.length;
+        document.getElementById("dataEmitted").textContent =
+          Math.round((dataEmittedBytes / 1024) * 100) / 100 + " KB";
+
+        // Add to hit log
+        const logElement = document.getElementById("hitLog");
+        if (
+          logElement.children.length === 1 &&
+          logElement.children[0].style.textAlign === "center"
+        ) {
+          logElement.innerHTML = ""; // Clear placeholder
+        }
+
+        const logEntry = document.createElement("div");
+        logEntry.className = `hit-entry ${hitBy}-hit`;
+
+        const timeStr = new Date().toLocaleTimeString();
+        const ballPos = `(${Math.round(ball.x * 100) / 100}, ${
+          Math.round(ball.y * 100) / 100
+        })`;
+        const velocity = `[${Math.round(ball.velocityX * 100) / 100}, ${
+          Math.round(ball.velocityY * 100) / 100
+        }]`;
+
+        logEntry.innerHTML = `
+            <div><strong>Hit by ${
+              hitBy === "ai1" ? "Neural Net A" : "Neural Net B"
+            }</strong> - ${timeStr}</div>
+            <div>Ball: ${ballPos} | Vel: ${velocity}</div>
+            <div>Speed: ${
+              Math.round(ball.currentSpeed * 100) / 100
+            } | Hit #${hitCount}</div>
+        `;
+
+        logElement.appendChild(logEntry);
+        logElement.scrollTop = logElement.scrollHeight; // Auto-scroll to bottom
+      }
+
+      // Start WebSocket connection
+      connectWS();
+
+      // ----- Game logic -----
+      function updateAIPaddles() {
+        if (aiMode === "auto") {
+          updateAutoAI();
         } else {
-            // Use predictions from remote AI models
-            updateRemoteAI();
+          updateRemoteAI();
         }
-    }
+      }
 
-    function updateAutoAI() {
+      function updateAutoAI() {
         // AI1 (left paddle) - Predictive AI
-        const timeToReachPaddle = Math.abs(ball.x - ai1Paddle.x) / Math.abs(ball.velocityX);
-        const predictedY = ball.y + (ball.velocityY * timeToReachPaddle);
-        ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, predictedY));
+        const timeToReachPaddle =
+          Math.abs(ball.x - ai1Paddle.x) / Math.abs(ball.velocityX || 1);
+        const predictedY = ball.y + ball.velocityY * timeToReachPaddle;
+        ai1Paddle.targetY = Math.max(
+          75,
+          Math.min(canvas.height - 75, predictedY)
+        );
 
         // AI2 (right paddle) - Reactive AI with slight delay
         const ai2Center = ai2Paddle.y + ai2Paddle.height / 2;
         const diff = ball.y - ai2Center;
         if (Math.abs(diff) > 20) {
-            ai2Paddle.targetY = ball.y;
+          ai2Paddle.targetY = ball.y;
         }
 
         // Smooth movement towards target
         moveToTarget(ai1Paddle);
         moveToTarget(ai2Paddle);
-    }
+      }
 
-    function updateRemoteAI() {
-        // Move paddles towards targets set by remote AI
+      function updateRemoteAI() {
         moveToTarget(ai1Paddle);
         moveToTarget(ai2Paddle);
-        
-        // Request new predictions every 5 frames (less frequent than emissions)
-        if (gameRunning && Date.now() % 5 === 0) {
-            requestAIPredictions();
-        }
-    }
 
-    function moveToTarget(paddle) {
+        if (gameRunning && Date.now() % 5 === 0) {
+          requestAIPredictions();
+        }
+      }
+
+      function moveToTarget(paddle) {
         const center = paddle.y + paddle.height / 2;
         const diff = paddle.targetY - center;
-        
-        if (Math.abs(diff) > 5) {
-            const moveAmount = Math.min(Math.abs(diff), paddle.speed);
-            paddle.y += diff > 0 ? moveAmount : -moveAmount;
-        }
-        
-        // Keep paddle within bounds
-        paddle.y = Math.max(0, Math.min(canvas.height - paddle.height, paddle.y));
-    }
 
-    function updateBall() {
+        if (Math.abs(diff) > 5) {
+          const moveAmount = Math.min(Math.abs(diff), paddle.speed);
+          paddle.y += diff > 0 ? moveAmount : -moveAmount;
+        }
+
+        paddle.y = Math.max(
+          0,
+          Math.min(canvas.height - paddle.height, paddle.y)
+        );
+      }
+
+      function updateBall() {
         ball.x += ball.velocityX;
         ball.y += ball.velocityY;
 
         // Wall collisions
-        if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
-            ball.velocityY = -ball.velocityY;
+        if (
+          ball.y - ball.radius <= 0 ||
+          ball.y + ball.radius >= canvas.height
+        ) {
+          ball.velocityY = -ball.velocityY;
         }
 
         // AI1 paddle collision
-        if (ball.velocityX < 0 && 
-            ball.x - ball.radius <= ai1Paddle.x + ai1Paddle.width &&
-            ball.x - ball.radius >= ai1Paddle.x &&
-            ball.y >= ai1Paddle.y &&
-            ball.y <= ai1Paddle.y + ai1Paddle.height) {
+        if (
+          ball.velocityX < 0 &&
+          ball.x - ball.radius <= ai1Paddle.x + ai1Paddle.width &&
+          ball.x - ball.radius >= ai1Paddle.x &&
+          ball.y >= ai1Paddle.y &&
+          ball.y <= ai1Paddle.y + ai1Paddle.height
+        ) {
+          ball.velocityX = Math.abs(ball.velocityX);
+          ball.x = ai1Paddle.x + ai1Paddle.width + ball.radius;
 
-            ball.velocityX = Math.abs(ball.velocityX);
-            ball.x = ai1Paddle.x + ai1Paddle.width + ball.radius;
+          const hitPos =
+            (ball.y - (ai1Paddle.y + ai1Paddle.height / 2)) /
+            (ai1Paddle.height / 2);
+          ball.velocityY += hitPos * 3;
+          ball.lastHit = "ai1";
 
-            const hitPos = (ball.y - (ai1Paddle.y + ai1Paddle.height / 2)) / (ai1Paddle.height / 2);
-            ball.velocityY += hitPos * 3;
-            ball.lastHit = 'ai1';
+          // EMIT DATA ON HIT
+          emitBallHitData("ai1");
         }
 
         // AI2 paddle collision
-        if (ball.velocityX > 0 &&
-            ball.x + ball.radius >= ai2Paddle.x &&
-            ball.x + ball.radius <= ai2Paddle.x + ai2Paddle.width &&
-            ball.y >= ai2Paddle.y &&
-            ball.y <= ai2Paddle.y + ai2Paddle.height) {
+        if (
+          ball.velocityX > 0 &&
+          ball.x + ball.radius >= ai2Paddle.x &&
+          ball.x + ball.radius <= ai2Paddle.x + ai2Paddle.width &&
+          ball.y >= ai2Paddle.y &&
+          ball.y <= ai2Paddle.y + ai2Paddle.height
+        ) {
+          ball.velocityX = -Math.abs(ball.velocityX);
+          ball.x = ai2Paddle.x - ball.radius;
 
-            ball.velocityX = -Math.abs(ball.velocityX);
-            ball.x = ai2Paddle.x - ball.radius;
+          const hitPos =
+            (ball.y - (ai2Paddle.y + ai2Paddle.height / 2)) /
+            (ai2Paddle.height / 2);
+          ball.velocityY += hitPos * 3;
+          ball.lastHit = "ai2";
 
-            const hitPos = (ball.y - (ai2Paddle.y + ai2Paddle.height / 2)) / (ai2Paddle.height / 2);
-            ball.velocityY += hitPos * 3;
-            ball.lastHit = 'ai2';
+          // EMIT DATA ON HIT
+          emitBallHitData("ai2");
         }
 
-        // Scoring
+        // Scoring: sync to server immediately after local increment
         if (ball.x < 0) {
-            ai2Score++;
-            resetBall();
-            if (ai2Score >= 15) endGame('Neural Net B Wins!');
+          ai2Score++;
+          updateUI();
+          // sync to server & broadcast
+          sendScoreUpdate();
+          resetBall();
+          if (ai2Score >= 15) endGame("Neural Net B Wins!");
         }
         if (ball.x > canvas.width) {
-            ai1Score++;
-            resetBall();
-            if (ai1Score >= 15) endGame('Neural Net A Wins!');
+          ai1Score++;
+          updateUI();
+          sendScoreUpdate();
+          resetBall();
+          if (ai1Score >= 15) endGame("Neural Net A Wins!");
         }
-    }
+      }
 
-    function resetBall() {
+      function resetBall() {
         ball.x = canvas.width / 2;
         ball.y = canvas.height / 2;
         const dir = Math.random() > 0.5 ? 1 : -1;
         ball.velocityX = dir * ball.currentSpeed;
         ball.velocityY = (Math.random() - 0.5) * ball.currentSpeed * 0.8;
         ball.lastHit = null;
-    }
+      }
 
-    function updateUI() {
-        document.getElementById('ballX').textContent = Math.round(ball.x);
-        document.getElementById('ballY').textContent = Math.round(ball.y);
-        document.getElementById('ballVX').textContent = Math.round(ball.velocityX * 10) / 10;
-        document.getElementById('ballVY').textContent = Math.round(ball.velocityY * 10) / 10;
+      function requestAIPredictions() {
+        if (
+          !wsConnected ||
+          !ws ||
+          ws.readyState !== WebSocket.OPEN ||
+          aiMode !== "remote"
+        )
+          return;
 
-        document.getElementById('ai1X').textContent = Math.round(ai1Paddle.x);
-        document.getElementById('ai1Y').textContent = Math.round(ai1Paddle.y);
-        document.getElementById('ai1Target').textContent = Math.round(ai1Paddle.targetY);
+        const requestId = `pred_req_${Date.now()}_${Math.random()}`;
+        pendingAIRequests.set(requestId, Date.now());
 
-        document.getElementById('ai2X').textContent = Math.round(ai2Paddle.x);
-        document.getElementById('ai2Y').textContent = Math.round(ai2Paddle.y);
-        document.getElementById('ai2Target').textContent = Math.round(ai2Paddle.targetY);
+        const predictionRequest = {
+          type: "ai_prediction_request",
+          requestId: requestId,
+          timestamp: Date.now(),
+          gameState: {
+            ball: {
+              x: Math.round(ball.x),
+              y: Math.round(ball.y),
+              velocityX: Math.round(ball.velocityX * 10) / 10,
+              velocityY: Math.round(ball.velocityY * 10) / 10,
+              radius: ball.radius,
+            },
+            ai1Paddle: {
+              x: ai1Paddle.x,
+              y: Math.round(ai1Paddle.y),
+              width: ai1Paddle.width,
+              height: ai1Paddle.height,
+            },
+            ai2Paddle: {
+              x: ai2Paddle.x,
+              y: Math.round(ai2Paddle.y),
+              width: ai2Paddle.width,
+              height: ai2Paddle.height,
+            },
+            canvasWidth: canvas.width,
+            canvasHeight: canvas.height,
+            speedLevel: currentSpeedLevel,
+          },
+          requestedPredictions: ["ai1", "ai2"],
+        };
 
-        document.getElementById('ai1Score').textContent = ai1Score;
-        document.getElementById('ai2Score').textContent = ai2Score;
-        document.getElementById('matchCount').textContent = matchCount;
-        document.getElementById('speedLevel').textContent = currentSpeedLevel + 'x';
-    }
+        try {
+          ws.send(JSON.stringify(predictionRequest));
+        } catch (e) {
+          console.warn("WS prediction request failed:", e);
+        }
+      }
 
-    function draw() {
+      function updateUI() {
+        document.getElementById("ballX").textContent = Math.round(ball.x);
+        document.getElementById("ballY").textContent = Math.round(ball.y);
+        document.getElementById("ballVX").textContent =
+          Math.round(ball.velocityX * 10) / 10;
+        document.getElementById("ballVY").textContent =
+          Math.round(ball.velocityY * 10) / 10;
+        document.getElementById("ballLastHit").textContent =
+          ball.lastHit || "-";
+
+        document.getElementById("ai1Score").textContent = ai1Score;
+        document.getElementById("ai2Score").textContent = ai2Score;
+        document.getElementById("matchCount").textContent = matchCount;
+        document.getElementById("speedLevel").textContent =
+          currentSpeedLevel + "x";
+      }
+
+      function draw() {
         // Background gradient
-        const gradient = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-        gradient.addColorStop(0,'rgba(15,25,45,0.95)');
-        gradient.addColorStop(1,'rgba(25,35,65,0.95)');
+        const gradient = ctx.createLinearGradient(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        gradient.addColorStop(0, "rgba(15,25,45,0.95)");
+        gradient.addColorStop(1, "rgba(25,35,65,0.95)");
         ctx.fillStyle = gradient;
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Center dashed line
-        ctx.setLineDash([15,15]);
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.setLineDash([15, 15]);
+        ctx.strokeStyle = "rgba(255,255,255,0.4)";
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(canvas.width/2, 0);
-        ctx.lineTo(canvas.width/2, canvas.height);
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
         ctx.stroke();
         ctx.setLineDash([]);
 
         // AI paddles with glow effects
         ctx.shadowBlur = 15;
-        ctx.shadowColor = '#00ff88';
-        ctx.fillStyle = '#00ff88';
-        ctx.fillRect(ai1Paddle.x, ai1Paddle.y, ai1Paddle.width, ai1Paddle.height);
+        ctx.shadowColor = "#00ff88";
+        ctx.fillStyle = "#00ff88";
+        ctx.fillRect(
+          ai1Paddle.x,
+          ai1Paddle.y,
+          ai1Paddle.width,
+          ai1Paddle.height
+        );
 
-        ctx.shadowColor = '#ff4488';
-        ctx.fillStyle = '#ff4488';
-        ctx.fillRect(ai2Paddle.x, ai2Paddle.y, ai2Paddle.width, ai2Paddle.height);
+        ctx.shadowColor = "#ff4488";
+        ctx.fillStyle = "#ff4488";
+        ctx.fillRect(
+          ai2Paddle.x,
+          ai2Paddle.y,
+          ai2Paddle.width,
+          ai2Paddle.height
+        );
 
         // Target indicators for AI paddles (only show when game is running)
         if (gameRunning) {
-            ctx.shadowBlur = 5;
-            ctx.strokeStyle = '#00ff8866';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(ai1Paddle.x - 10, ai1Paddle.targetY);
-            ctx.lineTo(ai1Paddle.x + ai1Paddle.width + 10, ai1Paddle.targetY);
-            ctx.stroke();
+          ctx.shadowBlur = 5;
+          ctx.strokeStyle = "#00ff8866";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(ai1Paddle.x - 10, ai1Paddle.targetY);
+          ctx.lineTo(ai1Paddle.x + ai1Paddle.width + 10, ai1Paddle.targetY);
+          ctx.stroke();
 
-            ctx.strokeStyle = '#ff448866';
-            ctx.beginPath();
-            ctx.moveTo(ai2Paddle.x - 10, ai2Paddle.targetY);
-            ctx.lineTo(ai2Paddle.x + ai2Paddle.width + 10, ai2Paddle.targetY);
-            ctx.stroke();
+          ctx.strokeStyle = "#ff448866";
+          ctx.beginPath();
+          ctx.moveTo(ai2Paddle.x - 10, ai2Paddle.targetY);
+          ctx.lineTo(ai2Paddle.x + ai2Paddle.width + 10, ai2Paddle.targetY);
+          ctx.stroke();
         }
 
-        // Ball with enhanced glow
-        ctx.shadowColor = ball.lastHit === 'ai1' ? '#00ff88' : ball.lastHit === 'ai2' ? '#ff4488' : '#ffffff';
+        // Ball with enhanced glow and hit indication
+        if (ball.lastHit === "ai1") {
+          ctx.shadowColor = "#00ff88";
+        } else if (ball.lastHit === "ai2") {
+          ctx.shadowColor = "#ff4488";
+        } else {
+          ctx.shadowColor = "#ffffff";
+        }
         ctx.shadowBlur = 20;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
         ctx.fill();
 
         // Ball velocity vector (for debugging - only show when game is running)
         if (gameRunning) {
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(ball.x, ball.y);
-            ctx.lineTo(ball.x + ball.velocityX * 10, ball.y + ball.velocityY * 10);
-            ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = "rgba(255,255,255,0.5)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(ball.x, ball.y);
+          ctx.lineTo(
+            ball.x + ball.velocityX * 10,
+            ball.y + ball.velocityY * 10
+          );
+          ctx.stroke();
         }
 
         ctx.shadowBlur = 0;
-    }
+      }
 
-    function gameLoop() {
+      function gameLoop() {
         if (!gameRunning || gamePaused) {
-            draw();
-            if (gameStarted) requestAnimationFrame(gameLoop);
-            return;
+          draw();
+          if (gameStarted) requestAnimationFrame(gameLoop);
+          return;
         }
-        
-        // Always emit game state when game is running (continuous emission)
-        emitGameState();
-        
+
         updateAIPaddles();
         updateBall();
         updateUI();
         draw();
-        
-        requestAnimationFrame(gameLoop);
-    }
 
-    function startMatch() {
+        requestAnimationFrame(gameLoop);
+      }
+
+      function startMatch() {
         if (gameStarted) return;
-        
+
         gameStarted = true;
         gameRunning = true;
         gamePaused = false;
         gameStartTime = Date.now();
-        emissionCounter = 0;
-        lastEmissionTime = 0;
-        
-        document.getElementById('waitingMessage').style.display = 'none';
-        document.getElementById('startButton').style.display = 'none';
-        
-        // Update emission status
-        document.getElementById('emissionStatus').textContent = 'Streaming';
-        document.getElementById('emissionStatus').style.color = '#00ff88';
-        
+
+        // Reset hit counters for new match
+        hitCount = 0;
+        dataEmittedBytes = 0;
+        document.getElementById("hitLog").innerHTML =
+          '<div style="text-align: center; color: #888; padding: 20px;">No hits detected yet...</div>';
+
+        document.getElementById("waitingMessage").style.display = "none";
+        document.getElementById("startButton").style.display = "none";
+
         resetBall();
         gameLoop();
-    }
+      }
 
-    function endGame(result) {
+      function endGame(result) {
         gameRunning = false;
-        document.getElementById('gameResult').textContent = result;
-        document.getElementById('finalScore').textContent = `${ai1Score} - ${ai2Score}`;
-        document.getElementById('gameOver').style.display = 'block';
-    }
+        document.getElementById("gameResult").textContent = result;
+        document.getElementById(
+          "finalScore"
+        ).textContent = `${ai1Score} - ${ai2Score}`;
+        document.getElementById("gameOver").style.display = "block";
 
-    function nextMatch() {
+        console.log(
+          `🏁 Game ended: ${result} | Total hits: ${hitCount} | Data emitted: ${
+            Math.round((dataEmittedBytes / 1024) * 100) / 100
+          } KB`
+        );
+      }
+
+      function nextMatch() {
         matchCount++;
         gameRunning = true;
         gamePaused = false;
-        ai1Score = 0; 
+        ai1Score = 0;
         ai2Score = 0;
         gameStartTime = Date.now();
 
+        // Reset hit counters for new match
+        hitCount = 0;
+        dataEmittedBytes = 0;
+        document.getElementById("hitLog").innerHTML =
+          '<div style="text-align: center; color: #888; padding: 20px;">No hits detected yet...</div>';
+
         resetBall();
-        ai1Paddle.y = canvas.height / 2 - 75; 
+        ai1Paddle.y = canvas.height / 2 - 75;
         ai2Paddle.y = canvas.height / 2 - 75;
         ai1Paddle.targetY = canvas.height / 2;
         ai2Paddle.targetY = canvas.height / 2;
 
-        document.getElementById('gameOver').style.display = 'none';
+        document.getElementById("gameOver").style.display = "none";
+        // sync scores to server (they were reset)
+        updateUI();
+        sendScoreUpdate();
         gameLoop();
-    }
+      }
 
-    function pauseGame() {
+      function pauseGame() {
         if (!gameStarted) return;
         gamePaused = !gamePaused;
         if (!gamePaused) gameLoop();
-    }
+      }
 
-    function increaseSpeed() {
+      function increaseSpeed() {
         if (!gameStarted) return;
         currentSpeedLevel++;
         ball.currentSpeed = ball.baseSpeed + (currentSpeedLevel - 1) * 1.5;
@@ -925,9 +1336,9 @@
         const speed = Math.sqrt(ball.velocityX ** 2 + ball.velocityY ** 2) || 1;
         ball.velocityX = (ball.velocityX / speed) * ball.currentSpeed;
         ball.velocityY = (ball.velocityY / speed) * ball.currentSpeed;
-    }
+      }
 
-    function resetEverything() {
+      function resetEverything() {
         gameStarted = false;
         gameRunning = false;
         gamePaused = false;
@@ -936,6 +1347,13 @@
         currentSpeedLevel = 1;
         matchCount = 1;
         gameStartTime = Date.now();
+
+        // Reset hit detection system
+        hitCount = 0;
+        dataEmittedBytes = 0;
+        lastHitTime = 0;
+        document.getElementById("hitLog").innerHTML =
+          '<div style="text-align: center; color: #888; padding: 20px;">No hits detected yet...</div>';
 
         ball.x = canvas.width / 2;
         ball.y = canvas.height / 2;
@@ -949,42 +1367,129 @@
         ai1Paddle.targetY = canvas.height / 2;
         ai2Paddle.targetY = canvas.height / 2;
 
-        document.getElementById('gameOver').style.display = 'none';
-        document.getElementById('waitingMessage').style.display = 'block';
-        document.getElementById('startButton').style.display = 'block';
-        
+        document.getElementById("gameOver").style.display = "none";
+        document.getElementById("waitingMessage").style.display = "block";
+        document.getElementById("startButton").style.display = "block";
+
         updateUI();
+        // sync reset scores to server
+        sendScoreUpdate();
         draw();
-    }
+      }
 
-    function setAIMode(mode) {
+      function setAIMode(mode) {
         aiMode = mode;
-        document.getElementById('autoMode').classList.toggle('active', mode === 'auto');
-        document.getElementById('remoteMode').classList.toggle('active', mode === 'remote');
-        
-        if (mode === 'remote' && !wsConnected) {
-            connectWS();
-        }
-    }
+        document
+          .getElementById("autoMode")
+          .classList.toggle("active", mode === "auto");
+        document
+          .getElementById("remoteMode")
+          .classList.toggle("active", mode === "remote");
 
-    // Keyboard controls
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !gameStarted) {
-            event.preventDefault();
-            startMatch();
+        if (mode === "remote" && !wsConnected) {
+          connectWS();
         }
-        if (event.key === ' ') {
-            event.preventDefault();
-            pauseGame();
+      }
+
+      // Fetch paddle state from server on load to sync initial positions
+      async function fetchPaddleState() {
+        try {
+          const res = await fetch("http://localhost:3000/api/paddles");
+          if (!res.ok) return;
+          const body = await res.json();
+          const p = body.paddles || {};
+          const defaultCenter = canvas.height / 2;
+
+          if (p.ai1 && p.ai1.y != null) {
+            const cy = Number(p.ai1.y);
+            ai1Paddle.y = Math.max(0, Math.min(canvas.height - ai1Paddle.height, cy - ai1Paddle.height / 2));
+            ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+          } else {
+            // default fallback
+            const cy = defaultCenter;
+            ai1Paddle.y = Math.max(0, Math.min(canvas.height - ai1Paddle.height, cy - ai1Paddle.height / 2));
+            ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+          }
+
+          if (p.ai2 && p.ai2.y != null) {
+            const cy = Number(p.ai2.y);
+            ai2Paddle.y = Math.max(0, Math.min(canvas.height - ai2Paddle.height, cy - ai2Paddle.height / 2));
+            ai2Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+          } else {
+            const cy = defaultCenter;
+            ai2Paddle.y = Math.max(0, Math.min(canvas.height - ai2Paddle.height, cy - ai2Paddle.height / 2));
+            ai2Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+          }
+
+          updateUI();
+          draw();
+        } catch (e) {
+          console.warn("Failed to fetch paddle state:", e);
         }
-    });
+      }
 
-    // Initialize the game
-    updateUI();
-    draw();
+      // Polling fallback: poll /api/paddles periodically and apply updates if any
+      let lastKnownPaddles = { ai1: null, ai2: null };
+      setInterval(async () => {
+        try {
+          const res = await fetch("http://localhost:3000/api/paddles", { cache: "no-store" });
+          if (!res.ok) return;
+          const body = await res.json();
+          const p = body.paddles || {};
+          const defaultCenter = canvas.height / 2;
 
+          if (p.ai1 && p.ai1.y != null && p.ai1.y !== lastKnownPaddles.ai1) {
+            lastKnownPaddles.ai1 = p.ai1.y;
+            setAIMode("remote");
+            const cy = Number(p.ai1.y);
+            ai1Paddle.y = Math.max(0, Math.min(canvas.height - ai1Paddle.height, cy - ai1Paddle.height / 2));
+            ai1Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+            console.log("[POLL] applied ai1 ->", cy);
+            updateUI(); draw();
+          }
+
+          if (p.ai2 && p.ai2.y != null && p.ai2.y !== lastKnownPaddles.ai2) {
+            lastKnownPaddles.ai2 = p.ai2.y;
+            setAIMode("remote");
+            const cy = Number(p.ai2.y);
+            ai2Paddle.y = Math.max(0, Math.min(canvas.height - ai2Paddle.height, cy - ai2Paddle.height / 2));
+            ai2Paddle.targetY = Math.max(75, Math.min(canvas.height - 75, cy));
+            console.log("[POLL] applied ai2 ->", cy);
+            updateUI(); draw();
+          }
+        } catch (e) {
+          // ignore fetch errors
+        }
+      }, 200); // poll every 200ms
+
+      // Keyboard controls
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !gameStarted) {
+          event.preventDefault();
+          startMatch();
+        }
+        if (event.key === " ") {
+          event.preventDefault();
+          pauseGame();
+        }
+      });
+
+      // Initialize the game + websocket connection + fetch server paddle positions
+      connectWS();
+      // small delay to let WS attempt to connect before fetching (not required)
+      setTimeout(fetchPaddleState, 200);
+      // initial score sync at load
+      setTimeout(pollScoreOnce, 400);
+
+      updateUI();
+      draw();
+
+      // expose a debug helper (optional)
+      window.__pong_debug = {
+        setAIMode,
+        fetchPaddleState,
+        sendScoreUpdate,
+      };
     </script>
-</body>
+  </body>
 </html>
-
-
