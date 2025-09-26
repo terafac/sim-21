@@ -40,6 +40,14 @@ First, you need to run the game environment locally to test your model.
 
 Your AI script communicates with the server over WebSockets.
 
+### Get the Paddles information
+```bash
+Invoke-RestMethod -Uri "http://localhost:3000/api/paddles" -Method Get
+```
+### Get the ball information
+```bash
+Invoke-RestMethod -Uri "http://localhost:3000/api/ball" -Method Get
+```
 
 #### Sending Your Prediction
 
