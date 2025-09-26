@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Advanced Pong Game — Realtime Emitter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow: hidden;
+        }
+        .game-container {
+            position: relative;
+            border: 3px solid #fff;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+        }
+        canvas { display: block; border-radius: 12px; }
+        .game-ui {
+            position: absolute; top: 20px; left: 0; right: 0;
+            display: flex; justify-content: space-between; padding: 0 30px;
+            color: white; font-size: 24px; font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .coordinates {
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            color: #00ff88; font-family: 'Courier New', monospace; font-size: 14px;
+            background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .coord-section { display:flex; flex-direction:column; gap:5px; }
+        .coord-label { color: #fff; font-weight: bold; margin-bottom: 5px; }
+        .speed-indicator { position: absolute; top: 70px; right: 30px; color:#ffaa00; font-size:16px; font-weight:bold; }
+        .controls { margin-top: 20px; color: white; text-align:center; font-size:14px; opacity:0.8; }
+        .game-over {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            background: rgba(0,0,0,0.9); color: white; padding: 30px; border-radius: 15px; text-align:center;
+            display: none;
+        }
+        .restart-btn {
+            background: linear-gradient(45deg,#00ff88,#00cc6a); border:none; padding:12px 24px; border-radius:25px;
+            color:white; font-weight:bold; cursor:pointer; margin-top:15px; transition: transform .2s;
+        }
+        .restart-btn:hover { transform: scale(1.05); }
+
+        /* small network-status box */
+        .net-status {
+            position: absolute; top: 20px; right: 20px; color: #fff; background: rgba(0,0,0,0.45);
+            padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+        <div class="game-ui">
+            <div>Player: <span id="playerScore">0</span></div>
+            <div>AI: <span id="aiScore">0</span></div>
+        </div>
+
+        <div class="speed-indicator">
+            Speed Level: <span id="speedLevel">1</span>
+        </div>
+
+        <div class="coordinates">
+            <div class="coord-section">
+                <div class="coord-label">🏓 Ball Position</div>
+                <div>X: <span id="ballX">400</span></div>
+                <div>Y: <span id="ballY">200</span></div>
+            </div>
+            <div class="coord-section">
+                <div class="coord-label">🎮 Player Paddle</div>
+                <div>X: <span id="playerX">20</span></div>
+                <div>Y: <span id="playerY">150</span></div>
+            </div>
+        </div>
+
+        <div class="net-status" id="netStatus">WS: disconnected</div>
+
+        <div class="game-over" id="gameOver">
+            <h2 id="gameResult">Game Over!</h2>
+            <p>Final Score: <span id="finalScore"></span></p>
+            <button class="restart-btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        Use ↑ ↓ Arrow Keys or W/S to control your paddle • First to 10 points wins!
+    </div>
+
+    <script>
+    // ----- Canvas and context -----
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // ----- Game state -----
+    let gameRunning = true;
+    let gameStartTime = Date.now();
+
+    // Ball
+    const ball = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 8,
+        velocityX: 5,
+        velocityY: 3,
+        baseSpeed: 5,
+        currentSpeed: 5
+    };
+
+    // Player paddle
+    const playerPaddle = {
+        x: 20,
+        y: canvas.height / 2 - 50,
+        width: 15,
+        height: 100,
+        speed: 8
+    };
+
+    // AI paddle
+    const aiPaddle = {
+        x: canvas.width - 35,
+        y: canvas.height / 2 - 50,
+        width: 15,
+        height: 100,
+        speed: 6
+    };
+
+    let playerScore = 0;
+    let aiScore = 0;
+    let currentSpeedLevel = 1;
+
+    // ----- Input handling -----
+    const keys = {};
+    document.addEventListener('keydown', (e) => { keys[e.key] = true; });
+    document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+    // ----- WebSocket realtime emitter -----
+    // Change WS_URL if your Python server runs on another host or port
+    const WS_URL = "ws://localhost:8765";
+    let ws = null;
+    let wsConnected = false;
+    let wsReconnectDelay = 1000; // ms
+    const netStatusEl = document.getElementById('netStatus');
+
+    function setNetStatus(text, color = null) {
+        netStatusEl.textContent = text;
+        if (color) netStatusEl.style.color = color;
+        else netStatusEl.style.color = '';
+    }
+
+    function connectWS() {
+        try {
+            ws = new WebSocket(WS_URL);
+        } catch (err) {
+            console.warn("WS connection attempt failed:", err);
+            scheduleReconnect();
+            return;
+        }
+
+        ws.addEventListener('open', () => {
+            console.log("WebSocket connected to", WS_URL);
+            wsConnected = true;
+            setNetStatus('WS: connected', '#80ff80');
+        });
+
+        ws.addEventListener('message', (ev) => {
+            // optional: process messages from server
+            // console.log("Server:", ev.data);
+        });
+
+        ws.addEventListener('close', () => {
+            console.log("WebSocket closed — reconnecting...");
+            wsConnected = false;
+            setNetStatus('WS: disconnected', '#ff8080');
+            scheduleReconnect();
+        });
+
+        ws.addEventListener('error', (err) => {
+            console.warn("WebSocket error", err);
+            try { ws.close(); } catch (e) {}
+        });
+    }
+
+    let reconnectTimer = null;
+    function scheduleReconnect() {
+        if (reconnectTimer) return;
+        reconnectTimer = setTimeout(() => {
+            reconnectTimer = null;
+            connectWS();
+        }, wsReconnectDelay);
+    }
+
+    // Start connection immediately
+    connectWS();
+
+    // Real-time emit function (called each frame in updateUI)
+    function emitCoordinatesRealtime() {
+        if (!wsConnected || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+        const coords = {
+            type: "coords",
+            ball: { x: Math.round(ball.x), y: Math.round(ball.y) },
+            player: { x: Math.round(playerPaddle.x), y: Math.round(playerPaddle.y) },
+            ai: { x: Math.round(aiPaddle.x), y: Math.round(aiPaddle.y) },
+            timestamp: Date.now()
+        };
+
+        try {
+            ws.send(JSON.stringify(coords));
+        } catch (e) {
+            // if send fails, rely on reconnect logic
+            console.warn("WS send failed:", e);
+        }
+    }
+
+    // ----- Game logic -----
+    function updateBallSpeed() {
+        const elapsedMinutes = (Date.now() - gameStartTime) / 60000;
+        const newSpeedLevel = Math.floor(elapsedMinutes) + 1;
+
+        if (newSpeedLevel !== currentSpeedLevel) {
+            currentSpeedLevel = newSpeedLevel;
+            ball.currentSpeed = ball.baseSpeed + (currentSpeedLevel - 1) * 1.5;
+
+            // maintain direction while updating speed
+            const speed = Math.sqrt(ball.velocityX ** 2 + ball.velocityY ** 2) || 1;
+            ball.velocityX = (ball.velocityX / speed) * ball.currentSpeed;
+            ball.velocityY = (ball.velocityY / speed) * ball.currentSpeed;
+
+            document.getElementById('speedLevel').textContent = currentSpeedLevel;
+        }
+    }
+
+    function updatePaddles() {
+        // Player movement
+        if ((keys['ArrowUp'] || keys['w'] || keys['W']) && playerPaddle.y > 0) {
+            playerPaddle.y -= playerPaddle.speed;
+        }
+        if ((keys['ArrowDown'] || keys['s'] || keys['S']) && playerPaddle.y < canvas.height - playerPaddle.height) {
+            playerPaddle.y += playerPaddle.speed;
+        }
+
+        // Simple AI movement
+        const aiCenter = aiPaddle.y + aiPaddle.height / 2;
+        const diff = ball.y - aiCenter;
+
+        if (Math.abs(diff) > 10) {
+            if (diff > 0 && aiPaddle.y < canvas.height - aiPaddle.height) {
+                aiPaddle.y += aiPaddle.speed * 0.8;
+            } else if (diff < 0 && aiPaddle.y > 0) {
+                aiPaddle.y -= aiPaddle.speed * 0.8;
+            }
+        }
+    }
+
+    function updateBall() {
+        ball.x += ball.velocityX;
+        ball.y += ball.velocityY;
+
+        // Wall collisions
+        if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
+            ball.velocityY = -ball.velocityY;
+        }
+
+        // Player paddle collision
+        if (ball.x - ball.radius <= playerPaddle.x + playerPaddle.width &&
+            ball.y >= playerPaddle.y &&
+            ball.y <= playerPaddle.y + playerPaddle.height) {
+
+            // reflect and nudge Y based on hit position
+            ball.velocityX = Math.abs(ball.velocityX);
+            ball.x = playerPaddle.x + playerPaddle.width + ball.radius;
+
+            const hitPos = (ball.y - (playerPaddle.y + playerPaddle.height / 2)) / (playerPaddle.height / 2);
+            ball.velocityY += hitPos * 2;
+        }
+
+        // AI paddle collision
+        if (ball.x + ball.radius >= aiPaddle.x &&
+            ball.y >= aiPaddle.y &&
+            ball.y <= aiPaddle.y + aiPaddle.height) {
+
+            ball.velocityX = -Math.abs(ball.velocityX);
+            ball.x = aiPaddle.x - ball.radius;
+
+            const hitPos = (ball.y - (aiPaddle.y + aiPaddle.height / 2)) / (aiPaddle.height / 2);
+            ball.velocityY += hitPos * 2;
+        }
+
+        // Scoring
+        if (ball.x < 0) {
+            aiScore++;
+            resetBall();
+            if (aiScore >= 10) endGame('AI Wins!');
+        }
+        if (ball.x > canvas.width) {
+            playerScore++;
+            resetBall();
+            if (playerScore >= 10) endGame('Player Wins!');
+        }
+    }
+
+    function resetBall() {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        // set a new random horizontal direction but keep to current speed magnitude
+        const dir = Math.random() > 0.5 ? 1 : -1;
+        ball.currentSpeed = ball.currentSpeed || ball.baseSpeed;
+        ball.velocityX = dir * ball.currentSpeed;
+        ball.velocityY = (Math.random() - 0.5) * ball.currentSpeed;
+    }
+
+    function updateUI() {
+        document.getElementById('ballX').textContent = Math.round(ball.x);
+        document.getElementById('ballY').textContent = Math.round(ball.y);
+        document.getElementById('playerX').textContent = Math.round(playerPaddle.x);
+        document.getElementById('playerY').textContent = Math.round(playerPaddle.y);
+
+        document.getElementById('playerScore').textContent = playerScore;
+        document.getElementById('aiScore').textContent = aiScore;
+
+        // Emit coordinates to Python server in real-time
+        emitCoordinatesRealtime();
+    }
+
+    function draw() {
+        // background gradient
+        const gradient = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+        gradient.addColorStop(0,'rgba(20,20,40,0.9)');
+        gradient.addColorStop(1,'rgba(40,20,60,0.9)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        // center dashed line
+        ctx.setLineDash([10,10]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2, 0);
+        ctx.lineTo(canvas.width/2, canvas.height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // paddles with glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ff88';
+        ctx.fillStyle = '#00ff88';
+        ctx.fillRect(playerPaddle.x, playerPaddle.y, playerPaddle.width, playerPaddle.height);
+
+        ctx.shadowColor = '#ff4444';
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(aiPaddle.x, aiPaddle.y, aiPaddle.width, aiPaddle.height);
+
+        // ball
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+        ctx.fill();
+
+        // reset shadow
+        ctx.shadowBlur = 0;
+    }
+
+    function gameLoop() {
+        if (!gameRunning) return;
+        updateBallSpeed();
+        updatePaddles();
+        updateBall();
+        updateUI();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function endGame(result) {
+        gameRunning = false;
+        document.getElementById('gameResult').textContent = result;
+        document.getElementById('finalScore').textContent = `${playerScore} - ${aiScore}`;
+        document.getElementById('gameOver').style.display = 'block';
+    }
+
+    function restartGame() {
+        gameRunning = true;
+        playerScore = 0; aiScore = 0; currentSpeedLevel = 1; gameStartTime = Date.now();
+
+        ball.x = canvas.width / 2; ball.y = canvas.height / 2;
+        ball.velocityX = 5; ball.velocityY = 3; ball.currentSpeed = 5;
+
+        playerPaddle.y = canvas.height / 2 - 50; aiPaddle.y = canvas.height / 2 - 50;
+
+        document.getElementById('gameOver').style.display = 'none';
+        document.getElementById('speedLevel').textContent = '1';
+        gameLoop();
+    }
+
+    // Start game
+    gameLoop();
+
+    // Optional: expose collectedData for debugging (not used because we stream via WS)
+    window.collectedData = window.collectedData || [];
+
+    </script>
+</body>
+</html>
