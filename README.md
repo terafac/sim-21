@@ -63,43 +63,6 @@ After receiving the game state, your AI must decide where to move its paddle. Yo
 2.  Save the code above as `server.py`.
 3.  Install the required library: `pip install websockets`.
 
-### Information is sent in the below format
-```json
-
-{
-
-  "gameState": {
-    "ball": {
-      "x": 474,
-      "y": 541.49,
-      "velocityX": -6,
-      "velocityY": 0.16,
-      "radius": 12,
-      "speed": 6
-    },
-    "paddle1": {
-      "id": "ai1",
-      "name": "Neural Net A",
-      "x": 30,
-      "y": 478.8,
-      "width": 20,
-      "height": 150,
-      "speed": 10
-    },
-    "paddle2": {
-      "id": "ai2",
-      "name": "Neural Net B",
-      "x": 1350,
-      "y": 275,
-      "width": 20,
-      "height": 150,
-      "speed": 10
-    },
-  }
-}
-
-```
-
 ### Send the information by hitting the API using follwing demo commands
 
 ```bash
