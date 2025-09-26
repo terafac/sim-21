@@ -99,7 +99,21 @@ After receiving the game state, your AI must decide where to move its paddle. Yo
 }
 
 ```
----
+
+### Send the information by hitting the API using follwing demo commands
+
+```bash
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/predict" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"model":"ai1","targetY":350,"immediate":false}'
+```
+Make sure, that you change ai1 and a12 before sending accordingly. 
+
+### Get the information about the score
+```bash
+Invoke-RestMethod -Uri "http://localhost:3000/api/score" -Method Get
+```
 
 ### ✨ Tips for Success
 
